@@ -6,6 +6,7 @@ import File from '../models/File';
 import Appointment from '../models/Appointment';
 import Notification from '../schemas/Notification';
 import CancellationsMail from '../jobs/CancellationMail';
+import SchedulingMail from '../jobs/SchedulingMail';
 import Queue from '../../lib/Queue';
 
 class AppointmentController {
@@ -107,6 +108,12 @@ class AppointmentController {
     await Notification.create({
       content: `Novo agendamento de ${user.name} para o ${formattedDate}`,
       user: provider_id,
+    });
+
+    await Queue.add(SchedulingMail.key, {
+      user,
+      provider: isProvider,
+      date: appointment.date,
     });
 
     return res.json(appointment);

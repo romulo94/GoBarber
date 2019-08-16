@@ -4,11 +4,11 @@ import path from 'path';
 import express from 'express';
 import Youch from 'youch';
 import * as Sentry from '@sentry/node';
+import { v1 } from 'uuid';
+import Log from './lib/Log';
 import sentryConfig from './config/sentry';
 import 'express-async-errors';
-
 import routes from './routes';
-
 import './database';
 
 class App {
@@ -23,6 +23,7 @@ class App {
   }
 
   middlewares() {
+    this.log();
     this.server.use(Sentry.Handlers.requestHandler());
     this.server.use(express.json());
     this.server.use(
@@ -45,6 +46,20 @@ class App {
       }
 
       return res.status(500).json({ error: 'Internal server error' });
+    });
+  }
+
+  log() {
+    this.server.use((req, res, next) => {
+      Log.logger().info({
+        headers: req.headers,
+        path: req.path,
+        method: req.method,
+        ip: req.connection.remoteAddress,
+        id: v1(),
+      });
+
+      return next();
     });
   }
 }
