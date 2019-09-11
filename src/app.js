@@ -1,5 +1,5 @@
 import 'dotenv/config';
-
+import cors from 'cors';
 import path from 'path';
 import express from 'express';
 import Youch from 'youch';
@@ -24,6 +24,7 @@ class App {
 
   middlewares() {
     this.log();
+    this.server.use(cors());
     this.server.use(Sentry.Handlers.requestHandler());
     this.server.use(express.json());
     this.server.use(
@@ -42,7 +43,7 @@ class App {
       if (process.env.NODE_ENV === 'development') {
         const erros = await new Youch(err, req).toJSON();
 
-        res.status(500).json(erros);
+        return res.status(500).json(erros);
       }
 
       return res.status(500).json({ error: 'Internal server error' });
