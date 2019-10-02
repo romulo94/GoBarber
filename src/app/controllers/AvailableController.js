@@ -18,7 +18,7 @@ class AvailableController {
       return res.status(400).json({ error: 'Invalid request. Missing date' });
     }
 
-    const searchDate = Number(date);
+    const searchDate = new Date(Number(date));
 
     const appointments = await Appointment.findAll({
       where: {
